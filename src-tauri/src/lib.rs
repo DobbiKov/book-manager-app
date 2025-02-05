@@ -19,8 +19,8 @@ fn greet(name: &str) -> String {
 
 #[tauri::command]
 fn get_books() -> Vec<book::Book> {
-    let conn = book_lib::db::connect_to_db();
-    let res_books = book_lib::db::get_books(&conn);
+    let conn = book_lib::db::setup();
+    let res_books = book_lib::get_books(&conn);
 
     let ret_books: Vec<book::Book> = res_books
         .unwrap_or_default()
@@ -33,9 +33,9 @@ fn get_books() -> Vec<book::Book> {
 
 #[tauri::command]
 fn delete_book(window: Window, name: String) {
-    let conn = book_lib::db::connect_to_db();
+    let conn = book_lib::db::setup();
     // TODO, result of deleting
-    let _ = book_lib::db::remove_book(&conn, &name);
+    let _ = book_lib::remove_book(&conn, &name);
 
     let books = get_books();
     window
@@ -45,21 +45,9 @@ fn delete_book(window: Window, name: String) {
 
 #[tauri::command]
 fn add_book(window: Window, bk: book::Book) -> Result<String, AddBookError> {
-    let conn = book_lib::db::connect_to_db();
-    if let (false, _) = book_lib::help::is_correct_path(&bk.path) {
-        return Err(AddBookError::init(
-            "path_error".to_string(),
-            "The path is incorrect".to_string(),
-        ));
-    }
-    if !book_lib::help::is_pdf(&bk.path) {
-        return Err(AddBookError::init(
-            "path_error".to_string(),
-            "the provided file is not a pdf".to_string(),
-        ));
-    }
+    let conn = book_lib::db::setup();
     // TODO, result of deleting
-    match book_lib::db::create_book(&conn, &bk.to_book_lib()) {
+    match book_lib::create_book(&conn, &bk.to_book_lib()) {
         Ok(_) => {
             let books = get_books();
             window
@@ -67,13 +55,21 @@ fn add_book(window: Window, bk: book::Book) -> Result<String, AddBookError> {
                 .unwrap();
             Ok("The book is created successfully".to_string())
         }
-        Err(book_lib::db::CreateBookError::BookWithNameExists) => Err(AddBookError::init(
+        Err(book_lib::CreateBookError::BookNameAlreadyUsed) => Err(AddBookError::init(
             "name_error".to_string(),
             "A book with the same name already exists".to_string(),
         )),
-        Err(book_lib::db::CreateBookError::Other) => Err(AddBookError::init(
+        Err(book_lib::CreateBookError::OtherError) => Err(AddBookError::init(
             "name_error".to_string(),
             "something went wrong".to_string(),
+        )),
+        Err(book_lib::CreateBookError::ProvidedPathIsNotPdf) => Err(AddBookError::init(
+            "path_error".to_string(),
+            "the provided file is not a pdf".to_string(),
+        )),
+        Err(book_lib::CreateBookError::ProvidedPathIsIncorrect) => Err(AddBookError::init(
+            "path_error".to_string(),
+            "The path is incorrect".to_string(),
         )),
     }
 }
@@ -95,6 +91,22 @@ fn open_path(path: String) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+fn open_book(name: String) -> Result<String, String> {
+    let conn = book_lib::db::setup();
+    match book_lib::open_book(&conn, &name) {
+        Ok(_) => Ok("The book has been successfully opened!".to_string()),
+        Err(err) => match err {
+            book_lib::OpenBookError::BookDoesNotExist => Err("book doesn't exists".to_string()),
+            book_lib::OpenBookError::PathIsIncorrect => Err("the path is incorrect".to_string()),
+            book_lib::OpenBookError::FileIsNotPDF => {
+                Err("the provided file is not pdf".to_string())
+            }
+            book_lib::OpenBookError::OtherError => Err("unexpected error".to_string()),
+        },
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -105,7 +117,8 @@ pub fn run() {
             get_books,
             open_path,
             delete_book,
-            add_book
+            add_book,
+            open_book
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -8,7 +8,7 @@ const Book = ({path, name, section}) => {
     const [error, setError] = useState("");
     const {cont, setCont} = useContext(QuestionContext);
     const onClickHandler = async (e) => {
-       await invoke("open_path", {path})
+       await invoke("open_book", {name})
         .then(res => {})
         .catch(err_mess => {setError(err_mess)});
     };
