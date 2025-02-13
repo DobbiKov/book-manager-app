@@ -6,6 +6,7 @@ use tauri::{utils::config::Updater, Emitter, Window};
 
 mod book;
 mod errors;
+mod sec_books;
 
 #[derive(Serialize, Clone)]
 struct UpdateBooksPaylod {
