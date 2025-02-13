@@ -108,6 +108,22 @@ fn open_book(name: String) -> Result<String, String> {
     }
 }
 
+#[tauri::command]
+fn update_favourite_book(window: Window, name: String, favourite: bool) -> Result<(), String> {
+    let conn = book_lib::db::setup();
+    let res = book_lib::update_favourite(&conn, &name, favourite);
+    match res {
+        Ok(_) => {
+            let books = get_books();
+            window
+                .emit("update-books", UpdateBooksPaylod { books })
+                .unwrap();
+            Ok(())
+        }
+        Err(e) => Err(e.to_string()),
+    }
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -119,7 +135,8 @@ pub fn run() {
             open_path,
             delete_book,
             add_book,
-            open_book
+            open_book,
+            update_favourite_book
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

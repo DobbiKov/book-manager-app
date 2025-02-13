@@ -33,7 +33,7 @@ function App() {
                     <div className="book-list">
                     {
                         _books.map(( book ) => 
-                            <Book name={book.name} path={book.path} section={book.section}/>
+                            <Book name={book.name} path={book.path} section={book.section} favourite={book.favourite}/>
                         )
                     }
                     </div>

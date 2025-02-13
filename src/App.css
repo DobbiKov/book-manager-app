@@ -295,3 +295,27 @@ button {
 .popup-btn.cancel:hover {
   background-color: #c82333;
 }
+
+
+
+/*star */
+.star-btn {
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.star-btn .filled {
+    display: none;
+    color: gold;
+}
+
+.star-btn.active .filled {
+    display: inline;
+}
+
+.star-btn.active .outlined {
+    display: none;
+}

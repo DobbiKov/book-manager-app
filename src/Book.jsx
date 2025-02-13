@@ -4,7 +4,7 @@ import { QuestionContext } from "./contexts";
 import { QuestionBoxCont } from "./questionBoxCont";
 
 
-const Book = ({path, name, section}) => {
+const Book = ({path, name, section, favourite}) => {
     const [error, setError] = useState("");
     const {cont, setCont} = useContext(QuestionContext);
     const onClickHandler = async (e) => {
@@ -12,6 +12,18 @@ const Book = ({path, name, section}) => {
         .then(res => {})
         .catch(err_mess => {setError(err_mess)});
     };
+
+    const onFavouriteClickHandler = async (e) => {
+        console.log("on click favourite");
+        await invoke("update_favourite_book", {name: name, favourite: !favourite})
+            .then(res => {console.log("got it!")})
+            .catch(err_mess => {setError(err_mess)})
+    }
+
+    const getFavouriteFill = (_fav) => {
+        if(_fav == true) return "black";
+        return "none";
+    }
     return(
         <div className="book-card" >
             <h2 className="book-title" onClick={onClickHandler}>{name}</h2>
@@ -58,6 +70,11 @@ const Book = ({path, name, section}) => {
             >
               🗑️ Delete
             </button>
+        <button className="star-btn" onClick={onFavouriteClickHandler}>
+            <svg className="outlined" width="24" height="24" viewBox="0 0 24 24">
+                <polygon points="12,2 15,9 22,9 16.5,14 18,21 12,17 6,21 7.5,14 2,9 9,9" stroke="black" strokeWidth="2" fill={`${getFavouriteFill(favourite)}`}/>
+            </svg>
+        </button>
         </div> 
     );
 };

@@ -7,7 +7,7 @@ pub struct SecBooks {
 impl SecBooks {
     pub fn from_vec_tuple(from: (String, Vec<book_lib::book::Book>)) -> SecBooks {
         let bks: Vec<book_lib::book::Book> = from.1;
-        let bks2 = bks.iter().map(|x| Book::ext_book_to_book(x)).collect();
+        let bks2 = bks.into_iter().map(|x| Book::ext_book_to_book(x)).collect();
         SecBooks {
             section: from.0,
             books: bks2,
