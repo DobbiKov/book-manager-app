@@ -51,3 +51,31 @@ impl Serialize for Book {
         state.end()
     }
 }
+
+pub enum SortByFavbouriteOrder {
+    Descending,
+    Ascending,
+}
+pub fn sort_books_by_favourite(books: Vec<Book>, order: SortByFavbouriteOrder) -> Vec<Book> {
+    let mut res_fav: Vec<Book> = Vec::new();
+    let mut res_non_fav: Vec<Book> = Vec::new();
+
+    for bk in books {
+        if bk.favourite {
+            res_fav.push(bk)
+        } else {
+            res_non_fav.push(bk);
+        }
+    }
+
+    match order {
+        SortByFavbouriteOrder::Descending => {
+            res_fav.append(&mut res_non_fav);
+            res_fav
+        }
+        SortByFavbouriteOrder::Ascending => {
+            res_non_fav.append(&mut res_fav);
+            res_non_fav
+        }
+    }
+}

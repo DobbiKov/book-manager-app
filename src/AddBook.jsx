@@ -24,7 +24,6 @@ export default function AddBook() {
       temp();
   }
   const handleAdd = () => {
-      console.log(path);
     let valid = true;
 
     if (!name.trim()) {
@@ -44,7 +43,7 @@ export default function AddBook() {
     if (valid) {
         async function temp(){
             await invoke("add_book", { bk: 
-                {name:name, path:path, section:section}
+                {name:name, path:path, section:section, favourite:false}
             })
         .then(res => {setShow_add(false);})
         .catch(err => {

@@ -29,7 +29,7 @@ fn get_books() -> Vec<book::Book> {
         .map(book::Book::ext_book_to_book)
         .collect();
 
-    ret_books
+    book::sort_books_by_favourite(ret_books, book::SortByFavbouriteOrder::Descending)
 }
 
 #[tauri::command]
