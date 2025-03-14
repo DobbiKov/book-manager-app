@@ -1,5 +1,6 @@
 use book_lib::db::CreateBookError;
 use errors::AddBookError;
+use sec_books::SecBooks;
 use serde::Serialize;
 use std::process;
 use tauri::{utils::config::Updater, Emitter, Window};
@@ -124,6 +125,23 @@ fn update_favourite_book(window: Window, name: String, favourite: bool) -> Resul
     }
 }
 
+#[tauri::command]
+fn get_books_sorted_by_section(window: Window) -> Result<Vec<SecBooks>, String> {
+    let conn = book_lib::db::setup();
+    let books = match book_lib::get_books(&conn) {
+        Ok(bks) => bks,
+        Err(e) => {
+            return Err(match e {
+                book_lib::GetBooksError::BookOrTableDoesnotExist => "Unexpected error".to_string(),
+                book_lib::GetBooksError::NoBooks => "There's no books!".to_string(),
+            })
+        }
+    };
+    let books_by_sec = book_lib::book::sort_books_by_section(books);
+    let res = sec_books::convert_sorted_by_section_from_book_lib(books_by_sec);
+    Ok(res)
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -136,7 +154,8 @@ pub fn run() {
             delete_book,
             add_book,
             open_book,
-            update_favourite_book
+            update_favourite_book,
+            get_books_sorted_by_section
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

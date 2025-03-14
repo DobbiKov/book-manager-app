@@ -13,32 +13,52 @@ function App() {
     const [show_add, setShow_add] = useState(false);
     const [books, setBooks] = useState([]);
     const [books_loaded, setBooks_loaded] = useState(false);
+    const [is_sort_by_sec, setIsSortBySec] = useState(false);
     
     useEffect(() => {
         async function temp_use_eff(){
             let _books = await invoke("get_books");
-            setBooks(_books);
+            handleSetBooks(_books);
             console.log(_books);
             setBooks_loaded(true);
 
-            const event_update_books = await listen("update-books", (event) => {
-                setBooks(event.payload.books);
+            const event_update_books = await listen("update-books", async (event) => {
+                handleSetBooks(event.payload.books);
+                if(is_sort_by_sec){
+
+                  let books_by_sec = await invoke("get_books_sorted_by_section");
+                  setBooks(books_by_sec);
+                }
             });
         }
         temp_use_eff();
     }, []);
 
-    const render_books = useCallback((_books) => {
+    const handleSetBooks = (books) => {
+        setBooks( [{section: "Main", books: books}])
+    }
+
+    const render_books = useCallback((book_secs) => {
         return(
-                    <div className="book-list">
+            <div className="list_of_secs">
                     {
-                        _books.map(( book ) => 
-                            <Book name={book.name} path={book.path} section={book.section} favourite={book.favourite}/>
+                        book_secs.map(( obj ) => 
+                        <div className="section">
+                            <p>{obj.section}</p>
+                            <div className="book-list">
+                                {
+                                    obj.books.map(( book ) => 
+                                        <Book name={book.name} path={book.path} section={book.section} favourite={book.favourite}/>
+                                    )
+                                }
+                            </div>
+                        </div>
                         )
-                    }
-                    </div>
+                    } 
+            </div>
         )
     }, []);
+
 
   return (
       <ShowCreateBookContext.Provider value={{show_add, setShow_add}}>
@@ -59,6 +79,30 @@ function App() {
               }}
             >
               ➕Add Book 
+            </button>
+        <button
+              onClick={async () => 
+                  {
+                      if(!is_sort_by_sec){
+                          let books_by_sec = await invoke("get_books_sorted_by_section");
+                          setBooks(books_by_sec);
+                          console.log(books_by_sec);
+                      }
+                      else{
+                          let _books = await invoke("get_books");
+                          handleSetBooks(_books);
+                      }
+                      setIsSortBySec(!is_sort_by_sec);
+                  }}
+              style={{
+                marginLeft: "10px",
+                backgroundColor:  is_sort_by_sec == true ? "green" : "grey" ,
+                color: "white", 
+                border: "none",
+                cursor: "pointer",
+              }}
+            >
+              🔀Sort by section
             </button>
         <main className="container">
           {

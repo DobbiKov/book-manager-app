@@ -1,4 +1,7 @@
+use serde::{Deserialize, Serialize};
+
 use crate::book::Book;
+#[derive(Serialize, Deserialize)]
 pub struct SecBooks {
     pub section: String,
     pub books: Vec<Book>,

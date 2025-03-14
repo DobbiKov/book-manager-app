@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "book_manager",
+  "productName": "book-manager",
   "version": "0.1.0",
-  "identifier": "com.book_manager.app",
+  "identifier": "com.book-manager.app",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
