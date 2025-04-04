@@ -355,7 +355,10 @@ dependencies = [
 [[package]]
 name = "book_lib"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6b6cacf30239a168a1e3425a3a2b905e22e4951e8552be9c8068d1f9995430df"
 dependencies = [
+ "loggit",
  "rusqlite",
 ]
 
@@ -364,6 +367,7 @@ name = "book_manager"
 version = "0.1.0"
 dependencies = [
  "book_lib",
+ "loggit",
  "serde",
  "serde_json",
  "tauri",
@@ -2074,6 +2078,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "04cbf5b083de1c7e0222a7a51dbfdba1cbe1c6ab0b15e29fff3f6c077fd9cd9f"
 
 [[package]]
+name = "loggit"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "571ed721488c87d03daa09a483c415ff99756179512230c8a564f21317240943"
+dependencies = [
+ "once_cell",
+]
+
+[[package]]
 name = "mac"
 version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2500,9 +2513,9 @@ dependencies = [
 
 [[package]]
 name = "once_cell"
-version = "1.20.2"
+version = "1.21.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1261fe7e33c73b354eab43b1273a57c8f967d0391e80353e51f764ac02cf6775"
+checksum = "d75b0bedcc4fe52caa0e03d9f1151a323e4aa5e2d78ba3580400cd3c9e2bc4bc"
 
 [[package]]
 name = "open"

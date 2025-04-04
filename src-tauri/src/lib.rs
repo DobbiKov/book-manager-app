@@ -1,5 +1,5 @@
-use book_lib::db::CreateBookError;
 use errors::AddBookError;
+use loggit::debug;
 use sec_books::SecBooks;
 use serde::Serialize;
 use std::process;
@@ -35,9 +35,14 @@ fn get_books() -> Vec<book::Book> {
 
 #[tauri::command]
 fn delete_book(window: Window, name: String) {
+    debug!("delete, name: {}", &name);
     let conn = book_lib::db::setup();
     // TODO, result of deleting
-    let _ = book_lib::remove_book(&conn, &name);
+    let res = book_lib::remove_book(&conn, &name);
+    let _ = match res {
+        Ok(_) => debug!("all passed while removing"),
+        Err(e) => debug!("error while deleting: {}", e),
+    };
 
     let books = get_books();
     window
@@ -57,19 +62,19 @@ fn add_book(window: Window, bk: book::Book) -> Result<String, AddBookError> {
                 .unwrap();
             Ok("The book is created successfully".to_string())
         }
-        Err(book_lib::CreateBookError::BookNameAlreadyUsed) => Err(AddBookError::init(
+        Err(book_lib::errors::CreateBookError::BookNameAlreadyUsed) => Err(AddBookError::init(
             "name_error".to_string(),
             "A book with the same name already exists".to_string(),
         )),
-        Err(book_lib::CreateBookError::OtherError) => Err(AddBookError::init(
+        Err(book_lib::errors::CreateBookError::OtherError) => Err(AddBookError::init(
             "name_error".to_string(),
             "something went wrong".to_string(),
         )),
-        Err(book_lib::CreateBookError::ProvidedPathIsNotPdf) => Err(AddBookError::init(
+        Err(book_lib::errors::CreateBookError::ProvidedPathIsNotPdf) => Err(AddBookError::init(
             "path_error".to_string(),
             "the provided file is not a pdf".to_string(),
         )),
-        Err(book_lib::CreateBookError::ProvidedPathIsIncorrect) => Err(AddBookError::init(
+        Err(book_lib::errors::CreateBookError::ProvidedPathIsIncorrect) => Err(AddBookError::init(
             "path_error".to_string(),
             "The path is incorrect".to_string(),
         )),
@@ -99,12 +104,16 @@ fn open_book(name: String) -> Result<String, String> {
     match book_lib::open_book(&conn, &name) {
         Ok(_) => Ok("The book has been successfully opened!".to_string()),
         Err(err) => match err {
-            book_lib::OpenBookError::BookDoesNotExist => Err("book doesn't exists".to_string()),
-            book_lib::OpenBookError::PathIsIncorrect => Err("the path is incorrect".to_string()),
-            book_lib::OpenBookError::FileIsNotPDF => {
+            book_lib::errors::OpenBookError::BookDoesNotExist => {
+                Err("book doesn't exists".to_string())
+            }
+            book_lib::errors::OpenBookError::PathIsIncorrect => {
+                Err("the path is incorrect".to_string())
+            }
+            book_lib::errors::OpenBookError::FileIsNotPDF => {
                 Err("the provided file is not pdf".to_string())
             }
-            book_lib::OpenBookError::OtherError => Err("unexpected error".to_string()),
+            book_lib::errors::OpenBookError::OtherError => Err("unexpected error".to_string()),
         },
     }
 }
@@ -132,8 +141,10 @@ fn get_books_sorted_by_section(window: Window) -> Result<Vec<SecBooks>, String> 
         Ok(bks) => bks,
         Err(e) => {
             return Err(match e {
-                book_lib::GetBooksError::BookOrTableDoesnotExist => "Unexpected error".to_string(),
-                book_lib::GetBooksError::NoBooks => "There's no books!".to_string(),
+                book_lib::errors::GetBooksError::BookOrTableDoesnotExist => {
+                    "Unexpected error".to_string()
+                }
+                book_lib::errors::GetBooksError::NoBooks => "There's no books!".to_string(),
             })
         }
     };

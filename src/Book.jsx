@@ -15,6 +15,7 @@ const Book = ({path, name, section, favourite}) => {
 
     const onFavouriteClickHandler = async (e) => {
         console.log("on click favourite");
+        console.log(name);
         await invoke("update_favourite_book", {name: name, favourite: !favourite})
             .then(res => {console.log("got it!")})
             .catch(err_mess => {setError(err_mess)})

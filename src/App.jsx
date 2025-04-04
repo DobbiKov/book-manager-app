@@ -5,7 +5,7 @@ import "./App.css";
 import Book from "./Book.jsx";
 import QuestionBox from "./questionBox";
 import AddBook from "./AddBook.jsx";
-import { QuestionContext, ShowCreateBookContext } from "./contexts.js";
+import { QuestionContext, ShowCreateBookContext } from "./contexts.jsx";
 import { QuestionBoxCont } from "./questionBoxCont.js";
 
 function App() {
@@ -101,12 +101,12 @@ function App() {
   };
 
   return (
-    <ShowCreateBookContext.Provider value={{ showAddBook, setShowAddBook }}>
+    <ShowCreateBookContext.Provider value={{ show_add: showAddBook, setShow_add: setShowAddBook }}>
       <QuestionContext.Provider value={{ cont: questionBoxCont, setCont: setQuestionBoxCont }}>
         <QuestionBox />
         <AddBook />
         <div className="button-group">
-          <button onClick={() => setShowAddBook(true)} className="add-book-button">
+          <button onClick={() => {setShowAddBook(true); console.log(showAddBook);}} className="add-book-button">
             ➕ Add Book
           </button>
           <button

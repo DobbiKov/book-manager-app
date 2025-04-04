@@ -62,7 +62,7 @@ export default function AddBook() {
     }
   };
 
-  if (!show_add) return null;
+ if (!show_add) return null;
     return( 
         <div className={ `popup-overlay ${show_add ? "" : "dontshow"}` }>
           <div className="popup-box">
