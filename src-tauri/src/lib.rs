@@ -89,10 +89,7 @@ fn open_path(path: String) -> Result<String, String> {
     if !book_lib::help::is_pdf(&path) {
         return Err("the provided file is not pdf".to_string());
     }
-    match process::Command::new("open")
-        .args(["-a", "Skim", path.as_str()])
-        .output()
-    {
+    match process::Command::new("open").args([path.as_str()]).output() {
         Ok(_) => Ok("".to_string()),
         Err(_) => Err("something went wrong".to_string()),
     }
